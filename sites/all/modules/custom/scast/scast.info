@@ -1,0 +1,3 @@
+name = Swell Caster
+description = Provides a really neat parser for NDBC buoy data.
+core = 7.x

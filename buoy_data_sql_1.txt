@@ -1,0 +1,33 @@
+// Buoy-specific Raw Forecast table creation statement (7.9 days, hourly, updated every .5-2 days).
+// Will need to run cron job for respective buoy every 6 hours.
+
+CREATE TABLE buoy_data_46087 (swell_date INT2, swell_hour INT2, compound_height FLOAT8, swell_cardinality INT1, swell_height_1 FLOAT8, swell_int_1 FLOAT, swell_dir_1 INT3, swell_height_2 FLOAT8, swell_int_2 FLOAT, swell_dir_2 INT3, swell_height_3 FLOAT8, swell_int_3 FLOAT, swell_dir_3 INT3, swell_height_4 FLOAT8, swell_int_4 FLOAT, swell_dir_4 INT3, swell_height_5 FLOAT8, swell_int_5 FLOAT, swell_dir_5 INT3, swell_height_6 FLOAT8, swell_int_6 FLOAT, swell_dir_6 INT3);
+
+
+// Transform?
+
+// Regular insert statement!
+db_insert('buoy_data_46087', $data_rows)
+
+// date
+// hour
+// compound_height
+// swell_cardinality
+// swell_1_height
+// swell_1_interval
+// swell_1_direction
+// swell_2_height
+// swell_2_interval
+// swell_2_direction
+// swell_3_height
+// swell_3_interval
+// swell_3_direction
+// swell_4_height
+// swell_4_interval
+// swell_4_direction
+// swell_5_height
+// swell_5_interval
+// swell_5_direction
+// swell_6_height
+// swell_6_interval
+// swell_6_direction

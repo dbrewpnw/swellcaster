@@ -1,0 +1,162 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function scast_menu() {
+
+  $items['special'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => t('Title'),
+    'description' => 'My custom and very special page',
+    'page callback' => 'scast_special_page',
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+  );
+
+  return $items;
+}
+
+// Custom code below here for buoy data
+
+// $node = node_load($nid);
+
+// $buoy = $node->field_buoy['und'][0]['value'];
+
+
+
+
+/**
+ * Page callback.
+ */
+function scast_special_page() {
+// CF:
+	$buoy = '46087';
+
+// PA:
+	// $buoy = '46267';
+
+// CE:
+	// $buoy = '46041';
+
+// WP:
+	// $buoy = '46211';
+	// dpm($buoy);
+
+// MBC1:
+	// $buoy = '46114';
+
+// MBC2:
+	// $buoy = '46092';
+
+// PL:
+	// $buoy = '46232';
+
+	$file = file_get_contents('https://polar.ncep.noaa.gov/waves/WEB/multi_1.latest_run/plots/multi_1.' . $buoy . '.bull');
+	if (!$file) {
+	    $content = "<p>Unable to open remote file.\n";
+	    exit;
+	} else {
+	$unbroken_array = explode('|', $file);
+
+	$info_array = $unbroken_array[0];
+	$footer_array = $unbroken_array[1728];
+	$data_array = array_slice($unbroken_array, 19, 1709);
+	$isolated_values = array();
+	// dpm($info_array);
+	// dpm($footer_array);
+	// dpm($data_array);
+
+	foreach($data_array as $key => $data) {
+		$isolated_values[] = preg_split('/\s+/', $data);
+	}
+
+	// dpm($isolated_values);
+
+	$structured_data = array();
+
+	//WARNING 1 start
+
+	$row_count = count($isolated_values);
+	for($i = 0; $i <= $row_count; $i++) {
+		$structured_data[] = array_slice($isolated_values[$i], 1, 3);
+	}
+
+
+	$segmented_data = array();
+	$struct_count = count($structured_data);
+	$data_rows = array();
+	for($j = 0; $j < $struct_count; $j+= 9) {
+			$height_conversion = 3.28084;
+			$direction_conversion = 180;
+			$data_rows[$j]['date'] = $structured_data[$j][0];
+			$data_rows[$j]['hour'] = $structured_data[$j][1];
+			$data_rows[$j]['compound_height'] = (($structured_data[$j+1][0]) * $height_conversion);
+			$data_rows[$j]['swell_cardinality'] = $structured_data[$j+1][1];
+
+		for($k = 1; $k <= 6; $k++) {
+			if(!empty($structured_data[$j+$k+1][0])) {
+				$data_rows[$j]['swell_' . $k . '_height'] = (($structured_data[$j+$k+1][0]) * $height_conversion);
+				$data_rows[$j]['swell_' . $k . '_interval'] = $structured_data[$j+$k+1][1];
+				$data_rows[$j]['swell_' . $k . '_direction'] = ($direction_conversion + ($structured_data[$j+$k+1][2]));
+			}
+			if(empty($structured_data[$j+$k+1][0])) {
+				$data_rows[$j]['swell_' . $k . '_height'] = 0;
+				$data_rows[$j]['swell_' . $k . '_interval'] = 0;
+				$data_rows[$j]['swell_' . $k . '_direction'] = 0;
+			}
+		}
+	}
+	// $hour_rows = array_values($data_rows);
+
+	$header_rows = $data_rows[0];
+	$header = array();
+	foreach($header_rows as $key => $value) {
+		$header[] = $key;
+	}
+	$table = array(
+		'#theme' => 'table',
+		'#header' => $header,
+		'#rows' => $data_rows
+		);
+
+  $content = $table;
+  drupal_write_record('buoy_data_' . $buoy, $data_rows);
+  // dpm($table);
+  // ... do something and add to $content;
+}
+  print_r($buoy);
+  return $content;
+}
+
+
+// dpm($table);
+
+// print_r(theme('table', $header, $header));
+
+// WARNING 1 end
+// *** MODULE CODE *** END
+
+// print_r($hour_rows);
+
+//outputs 189 rows, or 7.88 days of projected swell data
+
+// $datapath = 'datafiles/swellcast_' . $buoy;
+// $datafile = fopen($datapath, "w");
+// fwrite($datafile, $hour_rows);
+
+// $json_data = array();
+// $json_data = json_encode($hour_rows);
+// print_r($json_data);
+
+// fwrite($datafile, $json_data);
+
+// foreach ($hour_rows as $row) {
+	// CSV format
+	// fwrite($datafile, implode(",", $row));
+	// fwrite($datafile, ",\n");
+
+	// Test CSV format
+	// print_r(implode(",", $row));
+	// print_r(",\n");
+// }

@@ -1,0 +1,34 @@
+
+#
+# Minimal Drupal !!! 7.56 !!! development environment.
+#
+
+version: '3.1'
+services:
+    web:
+        build: ./lamp-stack
+        image: drupal:7.56-apache
+        # Version accounted for in Dockerfile.
+        working_dir: /var/www/html
+        volumes:
+            - ./sites/all/modules/contrib:/var/www/html/sites/all/modules/contrib
+            - ./sites/all/modules/custom:/var/www/html/sites/all/modules/custom
+            - .sites/all/themes:/var/www/html/sites/all/themes
+            - .sites/default/files:/var/www/html/sites/default/files
+            - .sites/all/libraries:/var/www/html/sites/all/libraries
+        ports:
+            - 80:80
+        restart: always
+    mysql:
+        image: mysql:5.7
+        working_dir: /var/www/html
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_USER=drupal
+            - MYSQL_PASSWORD=123456
+            - MYSQL_DATABASE=database_name
+        ports:
+            - 3306:3306
+        restart: always
